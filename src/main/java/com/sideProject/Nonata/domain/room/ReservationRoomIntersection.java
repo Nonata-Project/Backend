@@ -1,11 +1,13 @@
-package com.sideProject.Nonata.domain;
+package com.sideProject.Nonata.domain.room;
 
+import com.sideProject.Nonata.domain.Member;
+import com.sideProject.Nonata.domain.room.ReservationRoom;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
 @Getter
-public class RoomIntersection {
+public class ReservationRoomIntersection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -15,5 +17,5 @@ public class RoomIntersection {
 
     @ManyToOne
     @JoinColumn(name = "ROOM_ID")
-    Room room;
+    ReservationRoom room;
 }
