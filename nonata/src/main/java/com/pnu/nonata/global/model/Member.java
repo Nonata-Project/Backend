@@ -1,5 +1,6 @@
 package com.pnu.nonata.global.model;
 
+import com.pnu.nonata.global.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,9 @@ public class Member {
     private String socialId;
 
     private String refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToOne(mappedBy = "owner")
     private NowRoom ownedNowRoom;
