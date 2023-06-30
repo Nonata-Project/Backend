@@ -27,6 +27,10 @@ public class Member {
 
     private int opportunity;
 
+    private String socialId;
+
+    private String refreshToken;
+
     @OneToOne(mappedBy = "owner")
     private NowRoom ownedNowRoom;
 
@@ -40,4 +44,7 @@ public class Member {
     @OneToMany(mappedBy = "owner")
     private List<ReservationRoom> ownedReservationRoom = new ArrayList<>();
 
+    public void updateRefreshToken(String updateRefreshToken) {
+        this.refreshToken = updateRefreshToken;
+    }
 }
