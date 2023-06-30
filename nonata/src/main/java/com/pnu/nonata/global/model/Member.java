@@ -1,4 +1,4 @@
-package com.pnu.nonata.domain.model;
+package com.pnu.nonata.global.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
