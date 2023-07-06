@@ -12,4 +12,6 @@ public interface JwtMemberRepository extends JpaRepository<Member,Long> {
 
     Optional<Member> findBySocialId(String socialId);
 
+    Optional<Member> findByRefreshToken(String freshToken);
+
 }

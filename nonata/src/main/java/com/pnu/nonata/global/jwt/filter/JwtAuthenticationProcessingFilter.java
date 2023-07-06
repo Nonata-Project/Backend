@@ -76,7 +76,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     private String reIssueRefreshToken(Member user) {
-        String reIssuedRefreshToken = jwtService.createRefreshToken();
+        String reIssuedRefreshToken = jwtService.createRefreshToken(user.getSocialId());
         jwtService.updateRefreshToken(user.getSocialId(),reIssuedRefreshToken);
 
         return reIssuedRefreshToken;
@@ -84,7 +84,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 
     public void checkAccessTokenAndAuthentication(HttpServletRequest request) {
-        log.info("checkAccessTokenAndAuthentication() 호출");
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractId(accessToken)
@@ -95,8 +94,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 
     public void saveAuthentication(Member myUser) {
-
-
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
                 .username(myUser.getSocialId())
                 .password(UUID.randomUUID().toString())

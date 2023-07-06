@@ -77,7 +77,7 @@ public class JwtIssueController {
 
         Map<String,String> token = new TreeMap<>();
         token.put("access_token",jwtService.createAccessToken(userInfo.get("id").toString()));
-        token.put("refresh_token",jwtService.createRefreshToken());
+        token.put("refresh_token",jwtService.createRefreshToken(userInfo.get("id").toString()));
 
         if(!userService.isUserExist(userInfo.get("id").toString())){
             //todo 새로운 회원 등록
