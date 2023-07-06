@@ -2,9 +2,10 @@ package com.pnu.nonata.global.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.pnu.nonata.global.model.repository.MemberRepository;
+import com.pnu.nonata.global.jwt.repository.JwtMemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Getter
 @Slf4j
@@ -37,17 +39,17 @@ public class JwtService {
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    private static final String EMAIL_CLAIM = "email";
+    private static final String ID_CLAIM = "id";
     private static final String BEARER = "Bearer ";
 
-    private final MemberRepository memberRepository;
+    private final JwtMemberRepository userRepository;
 
-    public String createAccessToken(String email) {
+    public String createAccessToken(String socialID) {
         Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
-                .withClaim(EMAIL_CLAIM, email)
+                .withClaim(ID_CLAIM, socialID)
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -63,7 +65,6 @@ public class JwtService {
         response.setStatus(HttpServletResponse.SC_OK);
 
         response.setHeader(accessHeader, accessToken);
-        log.info("재발급된 Access Token : {}", accessToken);
     }
 
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
@@ -71,7 +72,14 @@ public class JwtService {
 
         setAccessTokenHeader(response, accessToken);
         setRefreshTokenHeader(response, refreshToken);
-        log.info("Access Token, Refresh Token 헤더 설정 완료");
+    }
+
+    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
+        response.setHeader(accessHeader, accessToken);
+    }
+
+    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
+        response.setHeader(refreshHeader, refreshToken);
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
@@ -80,18 +88,20 @@ public class JwtService {
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }
 
+
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }
 
-    public Optional<String> extractEmail(String accessToken) {
+
+    public Optional<String> extractId(String accessToken) {
         try {
             return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
                     .build()
                     .verify(accessToken)
-                    .getClaim(EMAIL_CLAIM)
+                    .getClaim(ID_CLAIM)
                     .asString());
         } catch (Exception e) {
             log.error("액세스 토큰이 유효하지 않습니다.");
@@ -99,23 +109,10 @@ public class JwtService {
         }
     }
 
-    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader(accessHeader, accessToken);
-    }
-
-
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshHeader, refreshToken);
-    }
-
-
-    public void updateRefreshToken(String email, String refreshToken) {
-        memberRepository.findByEmail(email)
+    public void updateRefreshToken(String socialId, String refreshToken) {
+        userRepository.findBySocialId(socialId)
                 .ifPresentOrElse(
-                        member -> {
-                            member.updateRefreshToken(refreshToken);
-                            memberRepository.save(member);
-                        },
+                        user -> user.updateRefreshToken(refreshToken),
                         () -> new Exception("일치하는 회원이 없습니다.")
                 );
     }
@@ -129,5 +126,4 @@ public class JwtService {
             return false;
         }
     }
-
 }

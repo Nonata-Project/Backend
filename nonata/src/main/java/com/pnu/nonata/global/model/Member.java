@@ -21,8 +21,6 @@ public class Member {
 
     private String kakaoQRUrl;
 
-    private String email;
-
     private String nickName;
 
     private String profileImage;
