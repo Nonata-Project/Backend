@@ -70,7 +70,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         userRepository.findByRefreshToken(refreshToken)
                 .ifPresent(user -> {
                     String reIssuedRefreshToken = reIssueRefreshToken(user);
-                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getSocialId()),
+                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getSocialId(),user.getRole().name()),
                             reIssuedRefreshToken);
                 });
     }
@@ -83,22 +83,24 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
 
-    public void checkAccessTokenAndAuthentication(HttpServletRequest request) {
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid)
-                .ifPresent(accessToken -> jwtService.extractId(accessToken)
-                        .ifPresent(socialId -> userRepository.findBySocialId(socialId)
-                                .ifPresent(this::saveAuthentication)));
+    public void checkAccessTokenAndAuthentication(HttpServletRequest request)
+    {
+        String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
+        if(jwtService.isTokenValid(accessToken)){
+            saveAuthentication(jwtService.extractId(accessToken).orElse(null)
+                    ,jwtService.extractRole(accessToken).orElse(null));
+        }
     }
 
 
-    public void saveAuthentication(Member myUser) {
+    public void saveAuthentication(String socialId, String role) {
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(myUser.getSocialId())
+                .username(socialId)
                 .password(UUID.randomUUID().toString())
-                .roles(myUser.getRole().name())
+                .roles(role)
                 .build();
+
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(userDetailsUser, null,
