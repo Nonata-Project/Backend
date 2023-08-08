@@ -40,16 +40,19 @@ public class JwtService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String ID_CLAIM = "id";
+
+    private static final String ROLE_CLAIM = "role";
     private static final String BEARER = "Bearer ";
 
     private final JwtMemberRepository userRepository;
 
-    public String createAccessToken(String socialID) {
+    public String createAccessToken(String socialID, String role) {
         Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
                 .withClaim(ID_CLAIM, socialID)
+                .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -70,7 +73,7 @@ public class JwtService {
 
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
         response.setStatus(HttpServletResponse.SC_OK);
-
+        response.setHeader("token_type","Bearer");
         setAccessTokenHeader(response, accessToken);
         setRefreshTokenHeader(response, refreshToken);
     }
@@ -103,6 +106,19 @@ public class JwtService {
                     .build()
                     .verify(accessToken)
                     .getClaim(ID_CLAIM)
+                    .asString());
+        } catch (Exception e) {
+            log.error("액세스 토큰이 유효하지 않습니다.");
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> extractRole(String accessToken) {
+        try {
+            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
+                    .build()
+                    .verify(accessToken)
+                    .getClaim(ROLE_CLAIM)
                     .asString());
         } catch (Exception e) {
             log.error("액세스 토큰이 유효하지 않습니다.");

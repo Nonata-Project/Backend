@@ -35,7 +35,7 @@ public class JwtIssueController {
 
     private final JwtService jwtService;
 
-    @PostMapping("/token")
+    @PostMapping("/oauth/2.0/token")
     public void getKakaoToken(@RequestBody @Nullable HashMap<String, Object> body, HttpServletResponse httpResponse) throws HttpClientErrorException {
 
         String accessToken= null;
@@ -76,7 +76,7 @@ public class JwtIssueController {
         }
 
         Map<String,String> token = new TreeMap<>();
-        token.put("access_token",jwtService.createAccessToken(userInfo.get("id").toString()));
+        token.put("access_token",jwtService.createAccessToken(userInfo.get("id").toString(), Role.USER.name()));
         token.put("refresh_token",jwtService.createRefreshToken(userInfo.get("id").toString()));
 
         if(!userService.isUserExist(userInfo.get("id").toString())){
@@ -90,6 +90,8 @@ public class JwtIssueController {
                     .refreshToken(token.get("refresh_token"))
                     .build();
 
+
+
             if(!userService.saveUser(member))
                 throw new NoResultException("FAIL TO SAVE USER IN DB");
         }
@@ -97,6 +99,7 @@ public class JwtIssueController {
 
         jwtService.sendAccessAndRefreshToken(httpResponse,token.get("access_token"),
         token.get("refresh_token"));
+
     }
 
     @ExceptionHandler(NullPointerException.class)
