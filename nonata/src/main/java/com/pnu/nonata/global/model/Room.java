@@ -1,9 +1,11 @@
 package com.pnu.nonata.global.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -33,7 +35,7 @@ public abstract class Room {
 
     private int cost;
 
-    private LocalDateTime limitEnterTime;
+    private ZonedDateTime limitEnterTime;
 
     private int limitMemberSize;
 }
