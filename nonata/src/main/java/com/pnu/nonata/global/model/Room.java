@@ -38,4 +38,8 @@ public abstract class Room {
     private ZonedDateTime limitEnterTime;
 
     private int limitMemberSize;
+
+    @OneToOne
+    @JoinColumn(name = "CHATROOM_ID")
+    private ChatRoom chatRoom;
 }
