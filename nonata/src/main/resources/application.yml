@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: db
+    include: db,jwt
 
   jpa:
     hibernate:
@@ -10,3 +10,4 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
+    open-in-view: true
