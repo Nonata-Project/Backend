@@ -1,11 +1,9 @@
-package com.pnu.nonata.global.model;
+package com.pnu.nonata.domain.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -35,11 +33,7 @@ public abstract class Room {
 
     private int cost;
 
-    private ZonedDateTime limitEnterTime;
+    private LocalDateTime limitEnterTime;
 
     private int limitMemberSize;
-
-    @OneToOne
-    @JoinColumn(name = "CHATROOM_ID")
-    private ChatRoom chatRoom;
 }

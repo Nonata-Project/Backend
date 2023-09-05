@@ -1,18 +1,13 @@
-package com.pnu.nonata.global.model;
+package com.pnu.nonata.domain.model;
 
-import com.pnu.nonata.global.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Member {
 
     @Id
@@ -22,6 +17,8 @@ public class Member {
 
     private String kakaoQRUrl;
 
+    private String email;
+
     private String nickName;
 
     private String profileImage;
@@ -29,13 +26,6 @@ public class Member {
     private double manner;
 
     private int opportunity;
-
-    private String socialId;
-
-    private String refreshToken;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
 
     @OneToOne(mappedBy = "owner")
     private NowRoom ownedNowRoom;
@@ -50,7 +40,4 @@ public class Member {
     @OneToMany(mappedBy = "owner")
     private List<ReservationRoom> ownedReservationRoom = new ArrayList<>();
 
-    public void updateRefreshToken(String updateRefreshToken) {
-        this.refreshToken = updateRefreshToken;
-    }
 }

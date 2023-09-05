@@ -1,10 +1,8 @@
-package com.pnu.nonata.global.model;
+package com.pnu.nonata.domain.model;
 
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
 
 @Embeddable
-@Getter
 public class Location {
     double latitude;
 
